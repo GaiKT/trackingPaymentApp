@@ -23,7 +23,7 @@ transactionRouter.post('/', async (req, res) => {
             });
         }
 
-        // check if user exists
+        // check if user not exists
         const thisUser = await User.findById(userId);
         if (!thisUser) {
             return res.status(404).json({
@@ -32,7 +32,7 @@ transactionRouter.post('/', async (req, res) => {
             });
         }
 
-        // check if category exists
+        // check if category not exists
         const thisCategory = await Category.findById(categoryId);
         if (!thisCategory) {
             return res.status(404).json({
