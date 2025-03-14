@@ -3,6 +3,7 @@ import { userRouter } from '../routes/userRouters';
 import { categoryRouter } from '../routes/categoryRouter';
 import { transactionRouter } from '../routes/transactionRouter';
 import { authRouter } from '../routes/authRouter';
+import cors from "cors";
 
 export const createServer = (): express.Express => {
   
@@ -11,6 +12,7 @@ export const createServer = (): express.Express => {
   // Basic middleware
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
+  app.use(cors());
   
   // Routes
   app.use('/users', userRouter);
