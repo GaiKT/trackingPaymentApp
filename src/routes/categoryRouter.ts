@@ -1,18 +1,28 @@
 import express from 'express';
 import { Category } from '../models/category';
+import { protect } from '../middlewares/protectRouters';
 
 export const categoryRouter = express.Router();
+
+// Protect all routes
+// categoryRouter.use(protect);
 
 // cerate a new category
 categoryRouter.post('/', async (req, res) => {
     try {
-        const { name, type } = req.body;
+        const { name, type , icon , color , description } = req.body;
 
         // Validate required fields
         if (!name || !type) {
+            const requiredFields = [];
+            if (!name) requiredFields.push('name');
+            if (!type) requiredFields.push('type');
+            if (!icon) requiredFields.push('icon');
+            if (!color) requiredFields.push('color');
+
             return res.status(400).json({
                 success: false,
-                message: 'Name,type are required'
+                message: `${requiredFields.join(', ')} is required`
             });
         }
 
@@ -28,7 +38,10 @@ categoryRouter.post('/', async (req, res) => {
         // Create new category
         const newCategory = new Category({
             name,
-            type
+            type,
+            icon,
+            color,
+            description
         });
 
         const savedCategory = await newCategory.save();

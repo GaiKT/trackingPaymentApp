@@ -5,7 +5,6 @@ export const categorySchema = new Schema({
     name: {
         type: String,
         required: true,
-        unique: true
     },
     type: {
         type: String,
@@ -17,6 +16,15 @@ export const categorySchema = new Schema({
         lowercase: true,
         trim : true
     },
+    icon: {
+        type: String,
+    },
+    color: {
+        type: String,
+    },
+    description: {
+        type: String
+    }
 });
 
 export const Category = mongoose.model<ICategory>('Category', categorySchema);

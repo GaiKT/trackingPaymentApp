@@ -3,11 +3,11 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-const MONGO_URI = process.env.MONGO_URI || '';
+const uri = process.env.MONGO_URI;
 
 export const mongooseConnect = async () => {
   try {
-    await mongoose.connect('mongodb://localhost:32768/trackingDB');
+    await mongoose.connect(uri);
     console.log('Connected to MongoDB');
   } catch (error) {
     console.error('Error connecting to MongoDB:', error);

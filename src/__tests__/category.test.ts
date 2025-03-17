@@ -12,7 +12,7 @@ describe('Category Router', () => {
   // Setup in-memory MongoDB database
   beforeAll(async () => {
     mongoServer = await MongoMemoryServer.create();
-    const mongoUri = mongoServer.getUri();
+    const mongoUri = mongoServer.getUri('testDB');
     console.log('Test MongoDB URI:', mongoUri);
     
     await mongoose.connect(mongoUri);

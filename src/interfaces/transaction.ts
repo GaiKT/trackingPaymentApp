@@ -7,6 +7,7 @@ export interface ITransaction extends Document {
     category: ICategory;
     name: string;
     amount: number;
+    date: Date;
     description: string;
     createdAt: Date;
     updatedAt: Date;

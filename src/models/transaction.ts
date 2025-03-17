@@ -14,9 +14,13 @@ const TransactionSchema = new Schema({
         type: Number,
         required: true
     },
+    date:{
+        type: Date,
+        required: true
+    },
     description: {
         type: String,
-        required: true
+        required: false
     },
 }, { timestamps: true });
 

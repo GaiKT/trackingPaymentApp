@@ -12,7 +12,7 @@ describe("Transaction Router", () => {
 
   beforeAll(async () => {
     mongoServer = await MongoMemoryServer.create();
-    const mongoUri = mongoServer.getUri();
+    const mongoUri = mongoServer.getUri('testDB');
     await mongoose.connect(mongoUri);
     console.log("Connected to in-memory database");
   });

@@ -1,8 +1,10 @@
 import express from 'express';
 import { User } from '../models/users';
-import bcrypt from 'bcrypt';
+import { protect } from '../middlewares/protectRouters';
 
 export const userRouter = express.Router();
+// Protect all routes
+// userRouter.use(protect);
 
 // Get all users
 userRouter.get('/', async (req, res) => {

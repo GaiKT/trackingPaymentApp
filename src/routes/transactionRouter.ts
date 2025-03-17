@@ -2,8 +2,12 @@ import express from 'express';
 import { Transaction } from '../models/transaction';
 import { User } from '../models/users';
 import { Category } from '../models/category';
+import { protect } from '../middlewares/protectRouters';
 
 export const transactionRouter = express.Router();
+
+// Protect all routes
+transactionRouter.use(protect);
 
 // Create a new transaction
 transactionRouter.post('/', async (req, res) => {
@@ -11,15 +15,24 @@ transactionRouter.post('/', async (req, res) => {
         const { 
             name , 
             amount, 
+            date,
             description , 
             userId , 
             categoryId } = req.body;
     
         // Validate required fields
-        if (!amount || !name) {
+        if (!amount || !name || !date || !userId || !categoryId) {
+
+            const requiredFields = [];
+            if (!amount) requiredFields.push('amount');
+            if (!name) requiredFields.push('name');
+            if (!date) requiredFields.push('date');
+            if (!userId) requiredFields.push('userId');
+            if (!categoryId) requiredFields.push('categoryId');
+
             return res.status(400).json({ 
                 success: false,
-                message: 'Amount and Transaction name are required' 
+                message: `${requiredFields.join(', ')} is required`
             });
         }
 
@@ -62,33 +75,24 @@ transactionRouter.post('/', async (req, res) => {
             }
             thisUser.balance -= amount
         }
-        await thisUser.save();
         
         // Create new transaction
         const newTransaction = new Transaction({
             name,
             amount,
             description,
+            date,
             user: thisUser,
             category: thisCategory
         });
-    
+        
         const savedTransaction = await newTransaction.save();
+        await thisUser.save();
     
         res.status(201).json({
         success: true,
         message: 'Transaction created successfully',
-        data: {
-            name: savedTransaction.name,
-            amount: savedTransaction.amount,
-            description: savedTransaction.description,
-            user: {
-                id: thisUser._id,
-                username: thisUser.username,
-                email: thisUser.email,
-                balance: thisUser.balance
-            },
-        }
+        data: savedTransaction
         });
     } catch (error) {
         console.error('Error creating transaction:', error);
@@ -101,13 +105,62 @@ transactionRouter.post('/', async (req, res) => {
 });
 
 // Get all transactions
+// Get all transactions for a specific user
 transactionRouter.get('/', async (req, res) => {
     try {
-        const transactions = await Transaction.find();
+        const userId = req.user?._id;
+
+        // Validate user ID
+        if (!userId) {
+            return res.status(400).json({
+                success: false,
+                message: 'User ID is required'
+            });
+        }
+
+        // Check if user exists
+        const user = (await User.findById(userId));
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: 'User not found'
+            });
+        }
+
+        // Find transactions belonging to this user
+        // Using populate to get detailed category information
+        const transactions = await Transaction.find({ 'user._id': userId })
+            .populate({
+                path: 'category',
+                select: 'name type icon color'
+            })
+            .sort({ date: -1 }); // Sort by date, newest first
+
+        // Calculate summary statistics
+        const totalIncome = transactions.reduce((acc, transaction) => {
+            if (transaction.category && transaction.category.type === 'income') {
+                return acc + transaction.amount;
+            }
+            return acc;
+        }, 0);
+
+        const totalExpense = transactions.reduce((acc, transaction) => {
+            if (transaction.category && transaction.category.type === 'expense') {
+                return acc + transaction.amount;
+            }
+            return acc;
+        }, 0);
+
+        // Return the transactions and summary data
         res.status(200).json({
             success: true,
             message: 'Transactions retrieved successfully',
-            data: transactions
+            data: {
+                transactions,
+                totalIncome,
+                totalExpense,
+                totalBalance: user.balance
+            }
         });
     } catch (error) {
         console.error('Error getting transactions:', error);

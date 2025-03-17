@@ -3,6 +3,7 @@ import { userRouter } from '../routes/userRouters';
 import { categoryRouter } from '../routes/categoryRouter';
 import { transactionRouter } from '../routes/transactionRouter';
 import { authRouter } from '../routes/authRouter';
+import { exportRouter } from '../routes/exportRouter';
 import cors from "cors";
 
 export const createServer = (): express.Express => {
@@ -19,6 +20,7 @@ export const createServer = (): express.Express => {
   app.use('/category', categoryRouter);
   app.use('/transaction', transactionRouter);
   app.use('/auth', authRouter);
+  app.use('/export', exportRouter);
   
   return app;
 };
