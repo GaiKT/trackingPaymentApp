@@ -9,13 +9,15 @@ const JWT_SECRET = process.env.JWT_SECRET || '';
 export const authRouter = express.Router();
 
 authRouter.post('/login', async (req, res) => {
-  const { email , username , password } = req.body;
+  const { email , password } = req.body;
     
   // Check if the user exists
     const user = await User.findOne({ email});
     if (!user) {
         return res.status(404).json({ message: 'User not found' });
     }
+
+    const userId = user._id;
 
     // Check if the password is correct
     const isPasswordValid = await bcrypt.compare(password, user.password);
@@ -24,7 +26,7 @@ authRouter.post('/login', async (req, res) => {
     }
 
     // Generate JWT token
-    const token = jwt.sign({ email }, JWT_SECRET, { expiresIn: '1h' });
+    const token = jwt.sign({ email , userId }, JWT_SECRET, { expiresIn: '1h' });
 
     res.json({ token });
 });
